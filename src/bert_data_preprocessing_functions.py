@@ -71,33 +71,43 @@ class GeneralData:
 
 class HebrewWord:
     def __init__(self, F, w, relevant_chars_utf8, convert_ascii_string_to_heb_script):
-
+        general_data = GeneralData()
         self.sp: str = F.sp.v(w)
+        self.vt: str = F.vt.v(w)
 
-        self.pfm_utf8 = ' '.join([char for char in F.g_pfm_utf8.v(w) if char in relevant_chars_utf8])
-        self.vbs_utf8 = ' '.join([char for char in F.g_vbs_utf8.v(w) if char in relevant_chars_utf8])
-        self.lex_rep = F.lex.v(w)
+        self.pfm_utf8 = ''.join([char for char in F.g_pfm_utf8.v(w) if char in relevant_chars_utf8])
+        self.vbs_utf8 = ''.join([char for char in F.g_vbs_utf8.v(w) if char in relevant_chars_utf8])
+        self.lex_rep = F.lex.v(w).strip('/').strip('[')
         self.lex_rep = convert_ascii_string_to_heb_script(self.lex_rep)
-        self.vbe_utf8 = ' '.join([char for char in F.g_vbe_utf8.v(w) if char in relevant_chars_utf8])
-        self.nme_utf8 = ' '.join([char for char in F.g_nme_utf8.v(w) if char in relevant_chars_utf8])
-        self.uvf_utf8 = ' '.join([char for char in F.g_uvf_utf8.v(w) if char in relevant_chars_utf8])
-        self.prs_utf8 = ' '.join([char for char in F.g_prs_utf8.v(w) if char in relevant_chars_utf8])
+        self.vbe_utf8 = ''.join([char for char in F.g_vbe_utf8.v(w) if char in relevant_chars_utf8])
+        if self.sp == 'verb':
+            self.vbe_utf8 = general_data.alphabet_dict_lat_heb['['] + self.vbe_utf8
+        self.nme_utf8 = ''.join([char for char in F.g_nme_utf8.v(w) if char in relevant_chars_utf8])
+        if self.sp in {'adjv', 'subs', 'nmpr'} or (self.sp == 'verb' and self.vt in {'ptca', 'ptcp', 'infa', 'infc'}):
+            self.nme_utf8 = general_data.alphabet_dict_lat_heb['/'] + self.nme_utf8 
+        self.uvf_utf8 = ''.join([char for char in F.g_uvf_utf8.v(w) if char in relevant_chars_utf8])
+        self.prs_utf8 = ''.join([char for char in F.g_prs_utf8.v(w) if char in relevant_chars_utf8])
 
         self.morph_list = [self.pfm_utf8, self.vbs_utf8, self.lex_rep, self.vbe_utf8, self.nme_utf8, self.uvf_utf8, self.prs_utf8]
 
     
 class SyriacWord:
     def __init__(self, F, w, relevant_chars_utf8, convert_ascii_string_to_heb_script):
-
+        general_data = GeneralData()
         self.sp: str = F.sp.v(w)
+        self.vt: str = F.vt.v(w)
         
+        # Make morphemes in ascii.
         self.pfm: str = F.g_pfm.v(w)
         self.pfx: str = F.g_pfx.v(w)
         self.vbs: str = F.g_vbs.v(w)
         self.lex: str = F.lex.v(w)
-        self.lex: str = self.make_lex_representation_with_verb_noun_marker(self.lex)
         self.vbe: str = F.g_vbe.v(w)
+        if self.sp == 'verb':
+            self.vbe = f'[{self.vbe}'
         self.nme: str = F.g_nme.v(w)
+        if self.sp in {'adjv', 'subs'} or (self.sp == 'verb' and self.vt in {'ptc', 'inf'}):
+            self.nme = f'/{self.nme}'
         self.emf: str = F.g_emf.v(w)
 
         self.pfm_utf8: str = convert_ascii_string_to_heb_script(self.pfm)
@@ -109,15 +119,6 @@ class SyriacWord:
         self.emf_utf8: str = convert_ascii_string_to_heb_script(self.emf)
 
         self.morph_list = [self.pfm_utf8, self.pfx_utf8, self.vbs_utf8, self.lex_utf8, self.vbe_utf8, self.nme_utf8, self.emf_utf8]
-
-    def make_lex_representation_with_verb_noun_marker(self, lex):
-        if self.sp == 'verb':
-            lex += '['
-        elif self.sp in {'subs', 'adjv', 'nmpr'}:
-            lex += '/'
-        if lex == '=':
-            lex = ''
-        return lex
     
 
 class TFNodePreparator:

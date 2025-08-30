@@ -33,10 +33,10 @@ seq_length = 5
 num_hidden_layers = 6
 num_attention_heads = 8
 learning_rate=0.0001
-num_epochs = 150
+num_epochs = 1 # 150
 
 augment_hebrew = True
-augment_hebrew_prob = 0.001
+augment_hebrew_prob = 0 #0.001
 add_syriac= True
 augment_syriac = False
 augment_syriac_prob = 0 #0.005
