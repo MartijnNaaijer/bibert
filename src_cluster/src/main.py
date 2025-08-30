@@ -8,23 +8,15 @@ from transformers import (
     Trainer
 )
 
-#from tf.app import use
-#SYR = use('etcbc/syriac')
-from tf.fabric import Fabric
-SYR = Fabric(locations='~/data/tf_data/syriac/0.2')
-api = SYR.load('''
-    otype sp vt sp vt g_pfm g_pfx g_vbs lex g_vbe g_nme g_emf ls
-''')
-
-#api.loadLog()
+from tf.app import use
+SYR = use('etcbc/syriac')
 Fsyr, Lsyr, Tsyr = SYR.api.F, SYR.api.L, SYR.api.T
 Fsyr.dataset = 'syriac'
 
-#MT = use('etcbc/bhsa')
-MT = Fabric(locations='~/data/tf_data/hebrew/2021')
-api = MT.load('''
-        otype vt sp g_lex_utf8 g_prs_utf8 g_nme_utf8 g_pfm_utf8 g_vbs_utf8 g_vbe_utf8 g_uvf_utf8 nametype
-       ''')
+MT = use('etcbc/bhsa')
+MT.load([
+        'g_lex_utf8', 'g_prs_utf8', 'g_nme_utf8', 'g_pfm_utf8', 'g_vbs_utf8', 'g_vbe_utf8', 'g_uvf_utf8'
+       ])
 Fheb, Lheb, Theb = MT.api.F, MT.api.L, MT.api.T
 Fheb.dataset = 'hebrew' 
 

@@ -1,0 +1,10 @@
+tokenizers
+transformers[torch]
+datasets
+pandas
+text-fabric
+
+-f https://download.pytorch.org/whl/cu126
+torch
+-f https://download.pytorch.org/whl/cu126
+torchvision

@@ -6,7 +6,6 @@ __pycache__/
 # model/tokenizer files
 **/morph*/
 *.json
-*.txt
 
 # C extensions
 *.so

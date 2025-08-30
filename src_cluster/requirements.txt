@@ -1,0 +1,8 @@
+tokenizers
+transformers
+datasets
+
+-f https://download.pytorch.org/whl/cu126
+torch
+-f https://download.pytorch.org/whl/cu126
+torchvision
