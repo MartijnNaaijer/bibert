@@ -182,6 +182,18 @@ class TFNodePreparator:
                     n_clause_dict[(book, chapter_number, n_gram, 0)] = n_gram
         return n_clause_dict
 
+    def make_words_verse_dict(self):
+        """
+        Returns:
+        verse_dict: dict - keys: tuple with book, chapter, verse. Values: list with word nodes occurring in the section.
+        """
+        verse_dict = {}
+        for ve in self.F.otype.s('verse'):
+            bo, ch, verse = self.T.sectionFromNode(ve)
+            words = list(self.L.d(ve, 'word'))
+            verse_dict[bo, ch, verse] = words
+        return verse_dict
+
     def augment_data_with_proper_noun_ids(self, 
                                           n_clause_dict: dict, 
                                           feature: str,
@@ -337,4 +349,44 @@ def prepare_hebrew_and_syriac_data(augment_hebrew, augment_hebrew_prob, add_syri
     print('After removal of duplicates', len(morpheme_dataset))
     morpheme_preparator_heb.save_data_as_txt_file(data_file_name, morpheme_dataset)
     return morpheme_dataset
+
+def prepare_hebrew_and_syriac_verse_data(add_syriac, 
+                                         seq_length,
+                                         Fheb, Lheb, Theb,
+                                         Fsyr, Lsyr, Tsyr):
+    """
+    Prepares Hebrew and Syriac data for evaluation of models.
+    Returns:
+    heb_morpheme_dataset: dict - keys: verses, e.g. ('Genesis', 1, 1), values: string with morphemes of a Hebrew verse.
+    syr_morpheme_dict: dict - keys: verses, e.g. ('Genesis', 1, 1), values: string with morphemes of a Syriac verse.
+    """
+    
+    print('Prepare data')
+    general_data = GeneralData()
+    node_preparator_heb = TFNodePreparator(seq_length, 'clause', Fheb, Lheb, Theb)
+    n_words_dict = node_preparator_heb.make_words_verse_dict()
+    print('Unaugmented_hebrew', len(n_words_dict))
+    
+    morpheme_preparator_heb = MorphemePreparator(Fheb, general_data.alphabet_dict_lat_heb)
+    heb_morpheme_dataset = morpheme_preparator_heb.make_morpheme_dict(n_words_dict, 
+                                                                      HebrewWord, 
+                                                                      general_data.relevant_chars_utf8, 
+                                                                      general_data.heb_morph_marker_dict
+                                                                     )
+    print(len(heb_morpheme_dataset))
+    
+    if add_syriac:
+        print('Add Syriac data')
+        node_preparator_syr = TFNodePreparator(seq_length*5, 'word', Fsyr, Lsyr, Tsyr)
+        syr_n_words_dict = node_preparator_syr.make_words_verse_dict()
+        print('unaugmented syriac', len(syr_n_words_dict))
+
+        morpheme_preparator_syr = MorphemePreparator(Fsyr, general_data.alphabet_dict_lat_heb)
+        syr_morpheme_dict = morpheme_preparator_syr.make_morpheme_dict(syr_n_words_dict, 
+                                                                       SyriacWord, 
+                                                                       general_data.relevant_chars_utf8,
+                                                                       general_data.syr_morph_marker_dict
+                                                                      )
+    return heb_morpheme_dataset, syr_morpheme_dict
+    
     

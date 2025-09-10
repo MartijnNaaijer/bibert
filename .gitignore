@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 # model/tokenizer files
+**/models/
 **/morph*/
 *.json
 
